@@ -58,6 +58,8 @@ import {
   createDocumentClosingStream,
   teeStream,
   renderToWebFizzStream,
+  renderToNodeFlightStream,
+  renderToNodeFizzStream,
 } from './stream-ops'
 import type { AnyStream } from './stream-ops'
 import { stripInternalQueries } from '../internal-utils'
@@ -3297,7 +3299,7 @@ async function renderToStream(
           reactServerResult = new ReactServerResult(
             workUnitAsyncStorage.run(
               requestStore,
-              renderToWebFlightStream,
+              renderToNodeFlightStream,
               ctx.componentMod,
               RSCPayload,
               clientModules,
@@ -3357,6 +3359,7 @@ async function renderToStream(
       // one task before continuing
       await waitAtLeastOneReactRenderTask()
 
+      // MARK: Node.js HTML
       if (
         process.env.__NEXT_USE_NODE_STREAMS &&
         !process.env.__NEXT_DEV_SERVER
@@ -3449,6 +3452,7 @@ async function renderToStream(
         const appElement = (
           <App
             reactServerStream={reactServerResult.tee()}
+            // TODO: Pass Node.js debugStream
             reactDebugStream={reactDebugStream}
             debugEndTime={undefined}
             preinitScripts={preinitScripts}
@@ -3461,9 +3465,9 @@ async function renderToStream(
         const fizzOptions = {
           onError: htmlRendererErrorHandler,
           nonce,
-          onHeaders: (headers: Headers) => {
-            for (const [key, value] of headers) {
-              appendHeader(key, value)
+          onHeaders: (headers: { [header: string]: string }) => {
+            for (const key in headers) {
+              appendHeader(key, headers[key])
             }
           },
           maxHeadersLength: reactMaxHeadersLength,
@@ -3474,7 +3478,7 @@ async function renderToStream(
 
         const { stream: htmlStream, allReady } = await workUnitAsyncStorage.run(
           requestStore,
-          renderToWebFizzStream,
+          renderToNodeFizzStream,
           appElement,
           fizzOptions
         )

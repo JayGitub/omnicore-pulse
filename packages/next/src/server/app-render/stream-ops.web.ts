@@ -234,7 +234,7 @@ export async function streamToString(stream: AnyStream): Promise<string> {
   return webStreamToString(stream as ReadableStream<Uint8Array>)
 }
 
-export async function renderToFizzStream(
+export async function renderToWebFizzStream(
   element: React.ReactElement,
   streamOptions: any
 ): Promise<FizzStreamResult> {
@@ -244,6 +244,13 @@ export async function renderToFizzStream(
     streamOptions,
   })
   return { stream, allReady: stream.allReady, abort: undefined }
+}
+
+export async function renderToNodeFizzStream(
+  _element: React.ReactElement,
+  _streamOptions: any
+): Promise<FizzStreamResult> {
+  throw new Error('Not implemented')
 }
 
 export async function resumeToFizzStream(

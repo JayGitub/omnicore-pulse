@@ -51,13 +51,13 @@ import {
   createOnHeadersCallback,
   resumeAndAbort,
   renderToFlightStream,
-  renderToFizzStream,
   resumeToFizzStream,
   getServerPrerender,
   getClientPrerender,
   processPrelude as processPreludeOp,
   createDocumentClosingStream,
   teeStream,
+  renderToWebFizzStream,
 } from './stream-ops'
 import type { AnyStream } from './stream-ops'
 import { stripInternalQueries } from '../internal-utils'
@@ -3468,7 +3468,7 @@ async function renderToStream(
 
         const { stream: htmlStream, allReady } = await workUnitAsyncStorage.run(
           requestStore,
-          renderToFizzStream,
+          renderToWebFizzStream,
           appElement,
           fizzOptions
         )
@@ -3605,7 +3605,7 @@ async function renderToStream(
 
         const { stream: htmlStream, allReady } = await workUnitAsyncStorage.run(
           requestStore,
-          renderToFizzStream,
+          renderToWebFizzStream,
           appElement,
           fizzOptions
         )
@@ -3740,7 +3740,7 @@ async function renderToStream(
         const { stream: errorHtmlStream, allReady: errorAllReady } =
           await workUnitAsyncStorage.run(
             requestStore,
-            renderToFizzStream,
+            renderToWebFizzStream,
             <ErrorApp
               reactServerStream={errorServerStream}
               ServerInsertedHTMLProvider={ServerInsertedHTMLProvider}
@@ -7157,7 +7157,7 @@ async function prerenderToStream(
 
       const { stream: htmlStream } = await workUnitAsyncStorage.run(
         prerenderLegacyStore,
-        renderToFizzStream,
+        renderToWebFizzStream,
         // eslint-disable-next-line @next/internal/no-ambiguous-jsx
         <App
           reactServerStream={reactServerResult.asUnclosingStream()}
@@ -7327,7 +7327,7 @@ async function prerenderToStream(
     try {
       const { stream: errorHtmlStream } = await workUnitAsyncStorage.run(
         prerenderLegacyStore,
-        renderToFizzStream,
+        renderToWebFizzStream,
         // eslint-disable-next-line @next/internal/no-ambiguous-jsx
         <ErrorApp
           reactServerStream={errorServerStream}

@@ -15,6 +15,7 @@ import {
 } from 'react-dom/server'
 import { prerender } from 'react-dom/static'
 import { PassThrough, Readable, Transform } from 'node:stream'
+import { isUtf8 } from 'node:buffer'
 
 import type { ReactDOMServerReadableStream } from 'react-dom/server'
 import {
@@ -650,7 +651,6 @@ export function createNodeInlinedDataStream(
     ? `<script nonce=${JSON.stringify(nonce)}>`
     : '<script>'
 
-  const decoder = new TextDecoder('utf-8', { fatal: true })
   const dataStream = webToReadable(source)
   const pt = new PassThrough()
 
@@ -666,7 +666,7 @@ export function createNodeInlinedDataStream(
   pt.push(Buffer.from(`${startScriptTag}${scriptContents}</script>`))
 
   // Pull from the flight data stream and wrap each chunk in a <script> tag
-  pullFlightData(dataStream, pt, startScriptTag, decoder)
+  pullFlightData(dataStream, pt, startScriptTag)
 
   return pt
 }
@@ -679,8 +679,7 @@ const INLINE_FLIGHT_PAYLOAD_BINARY = 3
 async function pullFlightData(
   dataStream: Readable,
   output: PassThrough,
-  startScriptTag: string,
-  decoder: TextDecoder
+  startScriptTag: string
 ): Promise<void> {
   function waitForReadableOrEnd(): Promise<void> {
     if (dataStream.readableLength > 0 || dataStream.readableEnded) {
@@ -702,12 +701,12 @@ async function pullFlightData(
       const chunk: Buffer | null = dataStream.read()
       if (chunk !== null) {
         let htmlInlinedData: string
-        try {
-          const decodedString = decoder.decode(chunk, { stream: true })
+        if (isUtf8(chunk)) {
+          const decodedString = chunk.toString('utf-8')
           htmlInlinedData = htmlEscapeJsonString(
             JSON.stringify([INLINE_FLIGHT_PAYLOAD_DATA, decodedString])
           )
-        } catch {
+        } else {
           const base64 = Buffer.from(
             chunk.buffer,
             chunk.byteOffset,

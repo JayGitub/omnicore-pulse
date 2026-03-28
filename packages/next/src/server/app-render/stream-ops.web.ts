@@ -183,7 +183,7 @@ export async function processPrelude(
 // Composed helpers
 // ---------------------------------------------------------------------------
 
-export function createInlinedDataStream(
+export function createWebInlinedDataStream(
   source: AnyStream,
   nonce: string | undefined,
   formState: unknown | null
@@ -193,6 +193,14 @@ export function createInlinedDataStream(
     nonce,
     formState
   )
+}
+
+export function createNodeInlinedDataStream(
+  _source: AnyStream,
+  _nonce: string | undefined,
+  _formState: unknown | null
+): AnyStream {
+  throw new Error('not implemented')
 }
 
 export function createPendingStream(): AnyStream {

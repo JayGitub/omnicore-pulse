@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "canonical_repository": "JayGitub/omnicore-pulse",
+  "project_id": "omnicore-pulse",
+  "ownership_status": "PROJECT_SCOPE_REQUIRES_SOURCE_CONFIRMATION",
+  "observed_baseline": "Next.js upstream source on canary",
+  "policy": "One distinct project per repository. Do not import FFIT, SAEI, or another project's source or SSOT. Do not infer project identity from similar names. Cross-project integrations require versioned interfaces and explicit scope. Preserve source history."
+}
